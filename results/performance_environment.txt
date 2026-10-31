@@ -1,9 +1,9 @@
-cpu: Intel(R) Xeon(R) Processor @ 2.10GHz
-logical_cores: 2
-physical_cores: 2
-ram_gib: 7.839
-os: Linux
-compiler: GCC 13.3.0
+cpu: 11th Gen Intel(R) Core(TM) i5-11320H @ 3.20GHz
+logical_cores: 8
+physical_cores: 4
+ram_gib: 15.79
+os: Windows
+compiler: GCC 13-posix
 build_type: Release
 flags: -std=c++17  -O3 -DNDEBUG
 workload_cases: 20000
@@ -11,6 +11,6 @@ workload_elements: 500
 seed: 20260101
 warmup_runs: 1
 measured_repetitions: 5
-workers_measured: 1 2 
+workers_measured: 1 2 4 
 serial_checksum: 2518544424.3234725
-note: Requested 4 workers; capped at 2 logical CPUs.
+note: Logical CPUs (8) exceed physical cores (4): workers beyond the physical core count share execution units (SMT), so efficiency drops.

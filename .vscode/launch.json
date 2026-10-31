@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Workbench",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/Launch.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole"
+    },
+    {
+      "name": "Build + Launch Workbench",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/Launch.exe",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug backend directly (wb_server)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/wb_server.exe",
+      "args": ["--port", "8765"],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

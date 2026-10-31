@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "configure", "type": "shell", "command": "cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=Release", "problemMatcher": [] },
+    { "label": "build", "type": "shell", "command": "cmake --build build-win && powershell -NoProfile -Command \"New-Item -ItemType Directory -Force bin | Out-Null; Copy-Item build-win/Launch.exe .; Copy-Item build-win/wb_server.exe,build-win/wb_cli.exe bin/\"", "dependsOn": "configure", "group": { "kind": "build", "isDefault": true }, "problemMatcher": ["$gcc"] },
+    { "label": "test", "type": "shell", "command": "build-win/wb_tests.exe", "dependsOn": "build", "problemMatcher": [] },
+    { "label": "regenerate results", "type": "shell", "command": "bin/wb_cli.exe all --out results", "problemMatcher": [] }
+  ]
+}

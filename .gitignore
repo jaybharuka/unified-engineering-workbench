@@ -1,0 +1,11 @@
+build/
+build-win/
+dist/
+*.o
+*.obj
+*.zip
+.vs/
+.idea/
+*.log
+__pycache__/
+tests/tmp/

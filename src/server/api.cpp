@@ -547,7 +547,8 @@ void registerRoutes(httplib::Server& svr, ApiContext& ctx) {
   }
   svr.set_error_handler([](const httplib::Request& req, httplib::Response& res) {
     if (res.status == 404 && req.path.rfind("/api/", 0) == 0) { sendError(res, 404, "Unknown API route.", "NOT_FOUND"); return; }
-    if (res.body.empty() && res.status >= 400) sendError(res, res.status, "Request failed.", "ERROR");
+    if (res.status == 413) { sendError(res, 413, "The file is larger than the 300 MB request limit. Use a smaller or coarser file.", "TOO_LARGE"); return; }
+    if (res.body.empty() && res.status >= 400) sendError(res, res.status, "Request failed (HTTP " + std::to_string(res.status) + ").", "ERROR");
   });
 }
 

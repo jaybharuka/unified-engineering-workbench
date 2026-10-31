@@ -1,0 +1,8 @@
+kind,records,file_MiB,parse_seconds,result
+STL,10000,2.4,0.028,ok
+STL,100000,23.7,0.193,ok
+STL,500000,118.7,1.002,ok
+STL,1000000,237.3,2.046,ok
+CSV,100000,3.9,0.066,ok
+CSV,1000000,39.9,0.731,ok
+CSV,3000000,122.0,2.239,ok

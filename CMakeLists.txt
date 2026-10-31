@@ -18,7 +18,8 @@ else()
 endif()
 
 # Flags string is reported in the Performance report (compiler + optimisation flags).
-set(WB_FLAGS_REPORT "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
+string(TOUPPER "${CMAKE_BUILD_TYPE}" WB_BUILD_TYPE_UPPER)
+set(WB_FLAGS_REPORT "-std=c++17 ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${WB_BUILD_TYPE_UPPER}}")
 string(STRIP "${WB_FLAGS_REPORT}" WB_FLAGS_REPORT)
 
 # ---- core library: no HTTP, no UI, no globals (src/core) ----

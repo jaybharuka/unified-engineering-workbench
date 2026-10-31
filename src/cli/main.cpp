@@ -1,7 +1,7 @@
 // wb_cli: command-line front end to the same C++ core. Used to regenerate everything in results/ and data/.
 //   wb_cli all --out results          regenerate every raw CSV and report text
 //   wb_cli gen-samples --out data     write the synthetic STL and CSV samples
-//   wb_cli gen-large --dir tests/tmp  write large files for the file-size limit tests
+//   wb_cli gen-large --dir tests/tmp [--triangles N --rows N]   write large files for the file-size limit tests
 //   wb_cli limits                     parse generated large files and print timings (documented in docs/)
 //   wb_cli bench [--cases N --elements N --seed N --reps N --warmup N --workers 1,2,4 --out dir]
 //   wb_cli sysinfo
@@ -142,6 +142,12 @@ int doAll(const std::string& out) {
   return ok ? 0 : 1;
 }
 
+int doGenLarge(const std::string& dir, std::size_t stlTris, std::size_t csvRows) {
+  bool ok = save(dir, "large_" + std::to_string(stlTris) + "_triangles.stl", generateLargeStl(stlTris));
+  ok &= save(dir, "large_" + std::to_string(csvRows) + "_nodes.csv", generateLargeCsv(csvRows));
+  return ok ? 0 : 1;
+}
+
 int doLimits() {
   struct Item { const char* name; std::size_t n; bool stl; };
   const Item items[] = {{"STL", 10000, true}, {"STL", 100000, true}, {"STL", 500000, true}, {"STL", 1000000, true},
@@ -174,6 +180,9 @@ int main(int argc, char** argv) {
     if (cmd == "gen-samples") return doGenSamples(get(a, "out", "data"));
     if (cmd == "bench") return doBench(a);
     if (cmd == "limits") return doLimits();
+    if (cmd == "gen-large")
+      return doGenLarge(get(a, "dir", "tests/tmp"), static_cast<std::size_t>(std::atoll(get(a, "triangles", "100000").c_str())),
+                        static_cast<std::size_t>(std::atoll(get(a, "rows", "1000000").c_str())));
     if (cmd == "sysinfo") { std::printf("%s", sysInfoText(querySysInfo()).c_str()); return 0; }
   } catch (const std::exception& e) {
     std::fprintf(stderr, "error: %s\n", e.what());

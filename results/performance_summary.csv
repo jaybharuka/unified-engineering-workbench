@@ -1,0 +1,4 @@
+implementation,workers,median_s,speedup_T1_over_Tp,efficiency,max_abs_diff_C,agrees_1e-8,oversubscribed
+serial,1,0.1891755,1,1,0,yes,no
+pool,1,0.19823077,0.95432,0.95432,0,yes,no
+pool,2,0.099535684,1.90058,0.95029,0,yes,no

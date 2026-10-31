@@ -1,6 +1,7 @@
 #include "util.hpp"
 
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 
@@ -60,6 +61,11 @@ bool readTextFile(const std::string& path, std::size_t maxBytes, std::string& ou
 }
 
 bool writeTextFile(const std::string& path, const std::string& content, std::string& error) {
+  {  // create the parent folder if needed (e.g. a fresh "results" directory)
+    std::error_code ec;
+    std::filesystem::path parent = std::filesystem::path(path).parent_path();
+    if (!parent.empty()) std::filesystem::create_directories(parent, ec);
+  }
   std::ofstream f(path, std::ios::binary | std::ios::trunc);
   if (!f) {
     error = "Cannot write '" + path + "'. Check that the folder exists and is writable.";

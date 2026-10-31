@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="bd-title bd-desc" font-family="system-ui, Segoe UI, Arial, sans-serif">
+  <title id="bd-title">Host-connected embedded workbench: block diagram</title>
+  <desc id="bd-desc">A host PC connects over USB to a microcontroller board, an FPGA board and a JTAG debug adapter. The JTAG adapter reaches one target at a time through a manual target selector. All signal levels are 3.3 V in the reference design; a level shifter sits in the MCU to FPGA user link only if the voltage domains differ.</desc>
+  <style>
+    .bd-bg{fill:#ffffff}.bd-box{fill:#f3f6fa;stroke:#44546a;stroke-width:1.6}.bd-host{fill:#e6eefb}.bd-mcu{fill:#e8f5e9}.bd-fpga{fill:#fff4e0}.bd-jtag{fill:#f3e8fb}
+    .bd-t{fill:#1b2430;font-size:13px}.bd-tb{fill:#1b2430;font-size:15px;font-weight:700}.bd-ts{fill:#3a4756;font-size:11px}
+    .bd-usb{stroke:#1f77b4;stroke-width:2.4;fill:none}.bd-sig{stroke:#7a3fa0;stroke-width:2;fill:none}.bd-gnd{stroke:#444;stroke-width:2;fill:none;stroke-dasharray:6 4}.bd-uart{stroke:#2e8b57;stroke-width:2;fill:none}
+    .bd-sim{fill:#b00020;font-size:12px;font-weight:700}
+    @media (prefers-color-scheme: dark){.bd-bg{fill:#12171d}.bd-box{fill:#1b232d;stroke:#8fa3bd}.bd-host{fill:#1d2c44}.bd-mcu{fill:#1c3023}.bd-fpga{fill:#3a2d17}.bd-jtag{fill:#2d1f3b}.bd-t,.bd-tb{fill:#e6edf5}.bd-ts{fill:#b7c4d4}.bd-usb{stroke:#6db3f2}.bd-sig{stroke:#c79bf0}.bd-gnd{stroke:#aab}.bd-uart{stroke:#6fd39a}.bd-sim{fill:#ff8a80}}
+  </style>
+  <rect class="bd-bg" x="0" y="0" width="960" height="600"/>
+  <text class="bd-sim" x="20" y="24">SIMULATED DESIGN - mock adapters only, no real hardware is driven</text>
+
+  <!-- legend -->
+  <g transform="translate(24,58)">
+    <line class="bd-usb" x1="0" y1="0" x2="34" y2="0"/><text class="bd-ts" x="42" y="4">USB data + 5 V</text>
+    <line class="bd-sig" x1="0" y1="20" x2="34" y2="20"/><text class="bd-ts" x="42" y="24">JTAG signals</text>
+    <line class="bd-uart" x1="0" y1="40" x2="34" y2="40"/><text class="bd-ts" x="42" y="44">MCU-FPGA user link</text>
+  </g>
+
+  <!-- host -->
+  <rect class="bd-box bd-host" x="330" y="46" width="300" height="92" rx="8"/>
+  <text class="bd-tb" x="480" y="72" text-anchor="middle">Host PC (Windows 11)</text>
+  <text class="bd-t" x="480" y="94" text-anchor="middle">Workbench UI + C++ core</text>
+  <text class="bd-ts" x="480" y="114" text-anchor="middle">Powered USB hub (5 V, current-limited ports)</text>
+  <text class="bd-ts" x="480" y="128" text-anchor="middle">Common ground reference via USB shields</text>
+
+  <!-- boards -->
+  <rect class="bd-box bd-mcu" x="40" y="250" width="250" height="150" rx="8"/>
+  <text class="bd-tb" x="165" y="276" text-anchor="middle">Microcontroller board</text>
+  <text class="bd-t" x="165" y="298" text-anchor="middle">e.g. Cortex-M, 3.3 V logic</text>
+  <text class="bd-ts" x="165" y="320" text-anchor="middle">USB device + virtual COM (UART bridge)</text>
+  <text class="bd-ts" x="165" y="336" text-anchor="middle">GPIO / UART / SPI / ADC headers</text>
+  <text class="bd-ts" x="165" y="352" text-anchor="middle">Debug header (SWD/JTAG, 10-pin Cortex)</text>
+  <text class="bd-ts" x="165" y="376" text-anchor="middle">VDD = 3.3 V  |  USB VBUS = 5 V</text>
+
+  <rect class="bd-box bd-fpga" x="670" y="250" width="250" height="150" rx="8"/>
+  <text class="bd-tb" x="795" y="276" text-anchor="middle">FPGA board</text>
+  <text class="bd-t" x="795" y="298" text-anchor="middle">e.g. Artix-7 class dev board</text>
+  <text class="bd-ts" x="795" y="320" text-anchor="middle">USB (on-board JTAG/UART bridge)</text>
+  <text class="bd-ts" x="795" y="336" text-anchor="middle">Pmod / header I/O, bank VCCO = 3.3 V</text>
+  <text class="bd-ts" x="795" y="352" text-anchor="middle">Dedicated JTAG header (FPGA family pinout)</text>
+  <text class="bd-ts" x="795" y="376" text-anchor="middle">VCCINT 1.0 V | VCCAUX 1.8 V | VCCO 3.3 V</text>
+
+  <rect class="bd-box bd-jtag" x="355" y="250" width="250" height="150" rx="8"/>
+  <text class="bd-tb" x="480" y="276" text-anchor="middle">JTAG debug adapter</text>
+  <text class="bd-t" x="480" y="297" text-anchor="middle">Debug interface only,</text>
+  <text class="bd-t" x="480" y="313" text-anchor="middle">not a compute board</text>
+  <text class="bd-ts" x="480" y="334" text-anchor="middle">Drives TCK, TMS, TDI, (n)TRST, (n)SRST</text>
+  <text class="bd-ts" x="480" y="350" text-anchor="middle">Reads TDO and VTref from the target</text>
+  <text class="bd-ts" x="480" y="366" text-anchor="middle">Buffers follow VTref (1.8-3.3 V class)</text>
+  <text class="bd-ts" x="480" y="382" text-anchor="middle">Never powers the target via VTref</text>
+
+  <!-- USB links -->
+  <path class="bd-usb" d="M400 138 L400 194 L165 194 L165 250"/>
+  <path class="bd-usb" d="M480 138 L480 250"/>
+  <path class="bd-usb" d="M560 138 L560 194 L795 194 L795 250"/>
+  <text class="bd-ts" x="172" y="188">USB (D+/D-, VBUS 5 V)</text>
+  <text class="bd-ts" x="488" y="200">USB</text>
+  <text class="bd-ts" x="640" y="188">USB (D+/D-, VBUS 5 V)</text>
+
+  <!-- JTAG ribbon and target selector -->
+  <path class="bd-sig" d="M480 400 L480 436"/>
+  <rect class="bd-box" x="375" y="436" width="210" height="52" rx="8"/>
+  <text class="bd-tb" x="480" y="457" text-anchor="middle">Target selector</text>
+  <text class="bd-ts" x="480" y="476" text-anchor="middle">one target at a time (manual)</text>
+  <path class="bd-sig" d="M375 462 L165 462 L165 400"/>
+  <path class="bd-sig" d="M585 462 L795 462 L795 400"/>
+  <text class="bd-ts" x="172" y="454">to MCU debug header (VTref 3.3 V)</text>
+  <text class="bd-ts" x="788" y="454" text-anchor="end">to FPGA JTAG header (VREF 3.3 V)</text>
+
+  <!-- MCU <-> FPGA user link along the bottom, optional level shifter in line -->
+  <path class="bd-uart" d="M100 400 L100 548 L860 548 L860 400"/>
+  <rect class="bd-box" x="390" y="526" width="180" height="44" rx="6"/>
+  <text class="bd-ts" x="480" y="544" text-anchor="middle">Optional level shifter</text>
+  <text class="bd-ts" x="480" y="559" text-anchor="middle">(only if the voltage domains differ)</text>
+  <text class="bd-ts" x="480" y="592" text-anchor="middle">MCU UART/SPI (3.3 V) &lt;-&gt; FPGA Pmod I/O (3.3 V)</text>
+  <text class="bd-ts" x="108" y="520">user link</text>
+</svg>

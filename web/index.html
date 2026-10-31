@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unified Engineering Workbench</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="app-header">
+  <h1>Unified Engineering Workbench</h1>
+  <nav aria-label="Views">
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" id="tab-geometry" aria-controls="view-geometry" aria-selected="true">Geometry</button>
+      <button role="tab" id="tab-thermal" aria-controls="view-thermal" aria-selected="false" tabindex="-1">Thermal Analysis</button>
+      <button role="tab" id="tab-performance" aria-controls="view-performance" aria-selected="false" tabindex="-1">Performance</button>
+      <button role="tab" id="tab-hardware" aria-controls="view-hardware" aria-selected="false" tabindex="-1">Hardware</button>
+      <button role="tab" id="tab-backprop" aria-controls="view-backprop" aria-selected="false" tabindex="-1">Backprop</button>
+    </div>
+  </nav>
+  <div class="health" id="health" aria-live="polite">connecting…</div>
+</header>
+
+<main id="main">
+<!-- =================== GEOMETRY =================== -->
+<section id="view-geometry" class="view" role="tabpanel" aria-labelledby="tab-geometry">
+  <div class="seg" role="group" aria-label="Data type">
+    <button id="seg-stl" aria-pressed="true">STL geometry</button>
+    <button id="seg-csv" aria-pressed="false">ANSYS temperature nodes</button>
+  </div>
+
+  <div id="pane-stl" class="geo-layout">
+    <aside class="card side">
+      <h2>ASCII STL</h2>
+      <div class="field">
+        <label for="stl-file">Choose an ASCII STL file</label>
+        <input type="file" id="stl-file" accept=".stl,.txt">
+      </div>
+      <div class="field row">
+        <label for="stl-sample" class="grow">…or load an example</label>
+        <select id="stl-sample"></select>
+        <button id="stl-load-sample" class="btn">Load</button>
+      </div>
+      <div id="stl-error" class="error" role="alert" hidden></div>
+      <dl id="stl-stats" class="stats"></dl>
+      <ul id="stl-warnings" class="warnings"></ul>
+      <p class="hint">Drag: rotate · Right-drag / Shift-drag: pan · Wheel: zoom · Double-click: fit. Keyboard (when the view is focused): arrows rotate, +/− zoom, F fit. You can also drop a file onto the view.</p>
+    </aside>
+    <div class="viewer-wrap" id="stl-wrap">
+      <canvas id="stl-canvas" class="viewer" tabindex="0" role="img" aria-label="3D view of STL triangles. Use the mouse or arrow keys to change the view."></canvas>
+      <div class="viewer-tools" id="stl-tools"></div>
+    </div>
+  </div>
+
+  <div id="pane-csv" class="geo-layout" hidden>
+    <aside class="card side">
+      <h2>ANSYS nodal temperatures (CSV)</h2>
+      <p class="hint">Header: <code>node_id,x_m,y_m,z_m,temperature_C</code> — metres and °C.</p>
+      <div class="field">
+        <label for="csv-file">Choose a CSV file</label>
+        <input type="file" id="csv-file" accept=".csv,.txt">
+      </div>
+      <div class="field row">
+        <label for="csv-sample" class="grow">…or load an example</label>
+        <select id="csv-sample"></select>
+        <button id="csv-load-sample" class="btn">Load</button>
+      </div>
+      <div id="csv-error" class="error" role="alert" hidden></div>
+      <dl id="csv-stats" class="stats"></dl>
+      <ul id="csv-warnings" class="warnings"></ul>
+      <h3>Node inspector</h3>
+      <div id="node-info" class="node-info" aria-live="polite">Click a point in the view to inspect a node.</div>
+      <div class="field row">
+        <label for="node-find" class="grow">Find node id</label>
+        <input type="number" id="node-find" min="1" step="1" placeholder="e.g. 42">
+        <button id="node-find-btn" class="btn">Find</button>
+      </div>
+    </aside>
+    <div class="viewer-wrap" id="csv-wrap">
+      <canvas id="csv-canvas" class="viewer" tabindex="0" role="img" aria-label="3D point cloud coloured by temperature. Click a point to inspect a node."></canvas>
+      <div class="viewer-tools" id="csv-tools"></div>
+      <div class="legend" id="legend" hidden>
+        <div class="legend-title">Temperature (°C)</div>
+        <div class="legend-body"><div class="legend-bar" id="legend-bar"></div><div class="legend-ticks" id="legend-ticks"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== THERMAL =================== -->
+<section id="view-thermal" class="view" role="tabpanel" aria-labelledby="tab-thermal" hidden>
+  <div class="two-col">
+    <aside class="card side">
+      <h2>1-D rod, steady state</h2>
+      <p class="eq">−d/dx(k A dT/dx) = q A &nbsp;·&nbsp; T(0)=T₀, T(L)=T_L</p>
+      <form id="thermal-form" novalidate>
+        <div class="grid-fields">
+          <label for="p-L">Length L <span class="unit">m</span></label><input id="p-L" type="number" step="any" value="1">
+          <label for="p-A">Area A <span class="unit">m²</span></label><input id="p-A" type="number" step="any" value="0.0001">
+          <label for="p-k">Conductivity k <span class="unit">W/(m·K)</span></label><input id="p-k" type="number" step="any" value="10">
+          <label for="p-q">Heat generation q <span class="unit">W/m³</span></label><input id="p-q" type="number" step="any" value="10000">
+          <label for="p-T0">T(0) <span class="unit">°C</span></label><input id="p-T0" type="number" step="any" value="100">
+          <label for="p-TL">T(L) <span class="unit">°C</span></label><input id="p-TL" type="number" step="any" value="20">
+          <label for="p-meshes">Elements N <span class="unit">list</span></label><input id="p-meshes" type="text" value="10, 20, 40, 80" inputmode="numeric">
+        </div>
+        <div id="thermal-error" class="error" role="alert" hidden></div>
+        <div class="btn-row">
+          <button type="submit" id="thermal-run" class="btn primary">Solve</button>
+          <button type="button" id="thermal-reset" class="btn">Reset to assignment values</button>
+        </div>
+      </form>
+      <h3>Export</h3>
+      <div class="btn-row wrap">
+        <button class="btn" id="exp-conv" disabled>Convergence CSV</button>
+        <button class="btn" id="exp-sol" disabled>Solution CSV (select N)</button>
+        <button class="btn" id="exp-mid" disabled>Midpoint CSV (select N)</button>
+      </div>
+      <div class="field row"><label for="exp-n" class="grow">N for the solution / midpoint CSV</label><select id="exp-n"></select></div>
+      <div class="btn-row wrap">
+        <button class="btn" id="png-t" disabled>Plot PNG: T(x)</button>
+        <button class="btn" id="png-e" disabled>Plot PNG: error</button>
+        <button class="btn" id="png-c" disabled>Plot PNG: convergence</button>
+      </div>
+      <h3>Assumptions</h3>
+      <ul class="assump">
+        <li>Steady state, constant k and A, insulated lateral surface ⇒ 1-D conduction.</li>
+        <li>Two-node linear elements, uniform mesh; consistent load q·A·h/2 per node.</li>
+        <li>Both ends are fixed temperatures (Dirichlet), imposed by moving known values to the right-hand side.</li>
+        <li>Units: m, m², W/(m·K), W/m³, °C.</li>
+      </ul>
+    </aside>
+    <div class="plots">
+      <div class="card"><canvas id="plot-temp" class="plot" role="img"></canvas></div>
+      <div class="card"><canvas id="plot-err" class="plot" role="img"></canvas></div>
+      <div class="card"><canvas id="plot-conv" class="plot" role="img"></canvas></div>
+      <div class="card">
+        <h3>Mesh convergence</h3>
+        <div class="table-wrap"><table class="data" id="conv-table"><caption class="sr">Maximum absolute error per mesh</caption>
+          <thead><tr><th>N</th><th>h (m)</th><th>max node error (°C)</th><th>max midpoint error (°C)</th><th>observed order</th></tr></thead><tbody></tbody></table></div>
+        <p class="hint">Midpoint error uses the FE interpolation (average of the two nodal values) against the exact curve. For this problem nodal values are exact to round-off, so only midpoints reveal the O(h²) discretisation error: e<sub>mid</sub> = q h²/(8k) = 125 h² °C.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PERFORMANCE =================== -->
+<section id="view-performance" class="view" role="tabpanel" aria-labelledby="tab-performance" hidden>
+  <div class="two-col">
+    <aside class="card side">
+      <h2>Batch of independent thermal solves</h2>
+      <form id="perf-form" novalidate>
+        <div class="grid-fields">
+          <label for="b-cases">Cases</label><input id="b-cases" type="number" min="1" step="1" value="20000">
+          <label for="b-elements">Elements per case</label><input id="b-elements" type="number" min="1" step="1" value="500">
+          <label for="b-seed">Seed</label><input id="b-seed" type="number" min="0" step="1" value="20260101">
+          <label for="b-warmup">Warm-up runs</label><input id="b-warmup" type="number" min="0" max="10" step="1" value="1">
+          <label for="b-reps">Measured repetitions</label><input id="b-reps" type="number" min="1" max="25" step="1" value="5">
+        </div>
+        <fieldset class="workers"><legend>Worker counts</legend><div id="b-workers"></div></fieldset>
+        <div id="perf-error" class="error" role="alert" hidden></div>
+        <div class="btn-row">
+          <button type="submit" id="perf-run" class="btn primary">Run benchmark</button>
+          <button type="button" id="perf-cancel" class="btn" disabled>Cancel</button>
+        </div>
+        <div class="progress" id="perf-progress" hidden><div class="bar" id="perf-bar"></div></div>
+        <div id="perf-stage" class="hint" aria-live="polite"></div>
+      </form>
+      <h3>This machine</h3>
+      <dl class="stats" id="sys-info"></dl>
+      <h3>Export</h3>
+      <div class="btn-row wrap">
+        <button class="btn" id="perf-csv" disabled>Summary CSV</button>
+        <button class="btn" id="perf-csv2" disabled>Repetitions CSV</button>
+        <button class="btn" id="perf-png" disabled>Plot PNG</button>
+      </div>
+    </aside>
+    <div class="plots">
+      <div class="card">
+        <h3>Results</h3>
+        <div class="table-wrap">
+        <table class="data" id="perf-table"><caption class="sr">Benchmark results</caption>
+          <thead><tr><th>Implementation</th><th>Workers</th><th>Median (s)</th><th>Speedup T₁/T<sub>p</sub></th><th>Efficiency</th><th>max |Δ| (°C)</th><th>Agrees (≤1e-8)</th></tr></thead><tbody></tbody></table>
+        </div>
+        <ul id="perf-notes" class="warnings"></ul>
+        <p class="hint" id="perf-launch"></p>
+        <p class="hint">T₁ is the median of the serial implementation (no pool). The 1-worker pool row shows pool overhead. Timings cover the compute only: file loading, rendering and compilation are excluded; pool threads are created before timing starts. See docs/ for limitations.</p>
+      </div>
+      <div class="card"><canvas id="plot-speedup" class="plot" role="img"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== HARDWARE =================== -->
+<section id="view-hardware" class="view" role="tabpanel" aria-labelledby="tab-hardware" hidden>
+  <div class="banner sim" role="note"><strong>SIMULATED.</strong> These devices are C++ mock adapters. No real microcontroller, FPGA or JTAG probe is contacted, powered or programmed.</div>
+  <div class="two-col wide-left">
+    <div>
+      <div class="card"><h2>Block diagram</h2><div id="block-diagram" class="diagram" aria-live="off">Loading diagram…</div></div>
+      <div class="card">
+        <h2>Interface and voltage table</h2>
+        <div class="table-wrap"><table class="data compact" id="iface-table"><caption class="sr">Interface, voltage and pinout assumptions</caption>
+          <thead><tr><th>Item</th><th>Design assumption</th><th>Voltage / domain</th><th>Owner / note</th></tr></thead>
+          <tbody>
+            <tr><td>Host ↔ each board</td><td>USB 2.0 (one cable per board) through a powered hub; MCU appears as a virtual COM port, FPGA/JTAG via their USB bridges</td><td>VBUS 5 V</td><td>Host is USB host; boards are USB devices</td></tr>
+            <tr><td>Power</td><td>Each board powered from its own USB port (≤ 500 mA assumed). The JTAG adapter never powers a target</td><td>5 V → on-board 3.3 V / 1.8 V / 1.0 V regulators</td><td>Check each board's current budget</td></tr>
+            <tr><td>Grounding</td><td>Single common ground via USB cable shields and JTAG ground pins; short ribbon, ≥ 2 ground pins</td><td>0 V</td><td>No ground loops through unpowered boards</td></tr>
+            <tr><td>MCU I/O</td><td>3.3 V CMOS GPIO, UART, SPI, ADC (0–3.3 V)</td><td>VDD 3.3 V</td><td>Not 5 V tolerant unless the datasheet says so</td></tr>
+            <tr><td>FPGA I/O</td><td>Pmod/header banks at VCCO 3.3 V; core 1.0 V, aux 1.8 V (example board)</td><td>3.3 V I/O</td><td>Bank voltage is board-specific; verify before wiring</td></tr>
+            <tr><td>Level shifting</td><td>Not needed MCU(3.3 V) ↔ FPGA(3.3 V). If an FPGA bank is 1.8 V or 2.5 V, insert a unidirectional / auto-direction translator</td><td>Per link</td><td>Never connect different domains directly</td></tr>
+            <tr><td>JTAG: TCK, TMS, TDI</td><td>Driven by the adapter toward the target; buffers follow VTref</td><td>VTref (1.8–3.3 V class)</td><td>Adapter owns</td></tr>
+            <tr><td>JTAG: TDO, VTref</td><td>TDO driven by the target; VTref is a sense input to the adapter</td><td>Target I/O voltage</td><td>Target owns</td></tr>
+            <tr><td>JTAG: (n)TRST, (n)SRST</td><td>Optional, driven by the adapter (open-drain preferred)</td><td>VTref</td><td>Adapter owns; leave unconnected if unused</td></tr>
+            <tr><td>Connectors</td><td>MCU: debug header (e.g. 10-pin 1.27 mm Cortex Debug). FPGA: its own JTAG header (e.g. 2×7, 2.0 mm). <em>Different connectors, pinouts and sometimes voltages</em> — use a dedicated adapter cable per target</td><td>—</td><td>Pin numbers are device-specific: confirm in the board schematic</td></tr>
+            <tr><td>One target at a time</td><td>The JTAG ribbon is moved (or a header jumper selects) between targets; two targets are never driven by the same pins simultaneously</td><td>—</td><td>Avoids contention on TMS/TDI</td></tr>
+          </tbody></table></div>
+        <p class="hint">Part families are examples only. A JTAG adapter is a <em>debug interface</em>: it carries test/debug signals to a target's TAP and has no user compute, so it is not interchangeable with the MCU or FPGA boards, and boards do not share a connector, voltage or protocol.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="row between"><h2>Devices <span class="badge sim">SIMULATED</span></h2><button class="btn" id="hw-refresh">Discover</button></div>
+        <div id="hw-error" class="error" role="alert" hidden></div>
+        <div id="hw-devices" class="devices"></div>
+      </div>
+      <div class="card">
+        <h3>Telemetry (latest messages)</h3>
+        <pre id="hw-telemetry" class="log" tabindex="0" aria-live="polite">No telemetry yet.</pre>
+        <h3>Event log</h3>
+        <pre id="hw-events" class="log small" tabindex="0"></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== BACKPROP =================== -->
+<section id="view-backprop" class="view" role="tabpanel" aria-labelledby="tab-backprop" hidden>
+  <div class="two-col">
+    <aside class="card side">
+      <h2>Backpropagation check</h2>
+      <p class="eq">h = tanh(w x + b), ŷ = v h + c, J = ½(ŷ − y)²</p>
+      <form id="bp-form" novalidate>
+        <div class="grid-fields">
+          <label for="bp-x">x</label><input id="bp-x" type="number" step="any" value="1">
+          <label for="bp-y">target y</label><input id="bp-y" type="number" step="any" value="2">
+          <label for="bp-w">w</label><input id="bp-w" type="number" step="any" value="0.5">
+          <label for="bp-b">b</label><input id="bp-b" type="number" step="any" value="0">
+          <label for="bp-v">v</label><input id="bp-v" type="number" step="any" value="1">
+          <label for="bp-c">c</label><input id="bp-c" type="number" step="any" value="0">
+          <label for="bp-lr">learning rate</label><input id="bp-lr" type="number" step="any" value="0.1">
+          <label for="bp-steps">steps after the first update</label><input id="bp-steps" type="number" min="1" max="10000" step="1" value="100">
+        </div>
+        <div id="bp-error" class="error" role="alert" hidden></div>
+        <div class="btn-row"><button type="submit" class="btn primary">Run</button><button type="button" class="btn" id="bp-csv" disabled>Loss CSV</button></div>
+      </form>
+      <h3>Gradient check (central differences, ε = 1e-6)</h3>
+      <table class="data compact" id="bp-table"><thead><tr><th>Parameter</th><th>Analytic</th><th>Numeric</th><th>|error|</th></tr></thead><tbody></tbody></table>
+      <p id="bp-verdict" class="hint" aria-live="polite"></p>
+      <p class="hint">The handwritten derivation (2 pages) is submitted separately as a scan. This view only runs the C++ implementation.</p>
+    </aside>
+    <div class="plots"><div class="card"><canvas id="plot-loss" class="plot" role="img"></canvas></div></div>
+  </div>
+</section>
+</main>
+
+<footer class="statusbar" role="status">
+  <span id="status-spinner" class="spinner" hidden></span>
+  <span id="status-text" data-kind="info">Ready</span>
+</footer>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

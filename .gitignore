@@ -9,3 +9,4 @@ dist/
 *.log
 __pycache__/
 tests/tmp/
+*.bundle

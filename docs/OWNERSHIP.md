@@ -9,4 +9,4 @@
 
 I confirm that the submission contains no credentials and no personal data, uses relative paths, and that I can explain and defend the design, the FEA verification, the performance results and the backpropagation derivation.
 
-Name: [Candidate name]  Candidate ID: [Candidate ID]  Date: [date]  Signature: [____]
+Name: Jay Bharuka  Candidate ID: [Candidate ID]  Date: [date]  Signature: [____]

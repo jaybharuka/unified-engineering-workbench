@@ -7,7 +7,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 P = lambda *a: os.path.join(ROOT, *a)
-CANDIDATE = os.environ.get("CANDIDATE", "[Candidate name / ID]")
+CANDIDATE = os.environ.get("CANDIDATE", "Jay Bharuka [Candidate ID]")
 LINK = os.environ.get("ZIP_LINK", "[link to CandidateID_Workbench.zip and Git repository - add before submitting]")
 
 def rows(n): return list(csv.DictReader(open(P("results", n), newline="")))

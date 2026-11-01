@@ -9,7 +9,7 @@ table { border-collapse: collapse; margin: 4px 0; font-size: 9.2pt; } th, td { b
 .note { background:#fff7d6; border:1px solid #d9b800; padding:2px 5px; }
 </style></head><body>
 <h1>Unified Engineering Workbench</h1>
-<p class="small">[Candidate name / ID] &middot; PASS SCIENCE WORKS assignment &middot; Windows 11 x64 &middot; C++17 backend + web UI &middot; Full package: [link to CandidateID_Workbench.zip and Git repository - add before submitting]</p>
+<p class="small">Jay Bharuka [Candidate ID] &middot; PASS SCIENCE WORKS assignment &middot; Windows 11 x64 &middot; C++17 backend + web UI &middot; Full package: [link to CandidateID_Workbench.zip and Git repository - add before submitting]</p>
 
 <h2>1. Summary and design choices</h2>
 <p>One application, five views (Geometry, Thermal, Performance, Hardware, Backprop). <code>Launch.exe</code> (tiny Win32 GUI program) starts <code>bin\wb_server.exe</code> hidden on <code>127.0.0.1</code>, waits for <code>/api/health</code> and opens an Edge app window; the backend exits itself a few seconds after the window closes. No installer, admin rights, terminal or internet.</p>
